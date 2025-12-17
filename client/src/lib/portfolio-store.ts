@@ -3,7 +3,8 @@ import type { Project } from '@shared/schema';
 import projectsData from '../data/projects.json';
 
 // We import the data directly from the JSON file
-const PROJECTS_DATA = projectsData as unknown as Project[];
+// The JSON now has a "projects" key, so we access that
+const PROJECTS_DATA = (projectsData as { projects: Project[] }).projects;
 
 export type { Project };
 
