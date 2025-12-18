@@ -1,32 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Project } from '@shared/schema';
-import projectsData from '../data/projects.json';
-
-// We import the data directly from the JSON file
-// The JSON now has a "projects" key, so we access that
-const PROJECTS_DATA = (projectsData as { projects: Project[] }).projects;
+import type { Project, InsertProject } from '@shared/schema';
 
 export type { Project };
 
-// Replaced API calls with direct data import
 async function fetchProjects(): Promise<Project[]> {
-  // Simulate network delay for realism
-  await new Promise(resolve => setTimeout(resolve, 300));
-  return PROJECTS_DATA;
+  const response = await fetch('/api/projects');
+  if (!response.ok) {
+    throw new Error('Failed to fetch projects');
+  }
+  return response.json();
 }
 
-// These functions are kept to satisfy the interface but won't persist data to a server
-async function createProject(project: Omit<Project, 'id' | 'createdAt'>): Promise<Project> {
-  console.log("Adding project (session only):", project);
-  return {
-    ...project,
-    id: Math.random(),
-    createdAt: new Date()
-  };
+async function createProject(project: InsertProject): Promise<Project> {
+  const response = await fetch('/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(project),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create project');
+  }
+  return response.json();
 }
 
 async function deleteProject(id: number): Promise<void> {
-  console.log("Deleting project (session only):", id);
+  const response = await fetch(`/api/projects/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete project');
+  }
 }
 
 export function usePortfolio() {
@@ -40,7 +43,6 @@ export function usePortfolio() {
   const addProjectMutation = useMutation({
     mutationFn: createProject,
     onSuccess: () => {
-      // In a real app, this would refetch. Here we'd need to update local state if we wanted it to show up.
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });
