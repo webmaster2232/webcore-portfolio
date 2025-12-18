@@ -18,10 +18,19 @@ export default function Contact() {
   };
 
   const onSubmit = (data: any) => {
+    // Netlify Forms will handle this automatically with data-netlify="true"
+    // Submit via fetch to Netlify's form endpoint
+    const formData = new FormData();
+    formData.append("form-name", "contact");
+    formData.append("firstName", data.firstName || "");
+    formData.append("lastName", data.lastName || "");
+    formData.append("email", data.email || "");
+    formData.append("service", data.service || "");
+    formData.append("message", data.message || "");
+
     fetch("/", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: encode({ "form-name": "contact", ...data }),
+      body: formData,
     })
       .then(() => {
         toast({
@@ -31,6 +40,7 @@ export default function Contact() {
         reset();
       })
       .catch((error) => {
+        console.error("Form submission error:", error);
         toast({
           title: "Error",
           description: "Something went wrong. Please try again later.",
