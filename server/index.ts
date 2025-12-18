@@ -12,6 +12,27 @@ declare module "http" {
   }
 }
 
+// CORS configuration for production (Netlify frontend -> Railway backend)
+const allowedOrigins = [
+  "http://localhost:5000",
+  "https://webcore-tt.netlify.app",
+  // Add any other Netlify domains here if needed
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(
   express.json({
     verify: (req, _res, buf) => {
