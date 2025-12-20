@@ -57,7 +57,17 @@ export function usePortfolio() {
   return {
     projects,
     isLoading,
-    addProject: addProjectMutation.mutate,
-    deleteProject: deleteProjectMutation.mutate,
+    addProject: (data: InsertProject, options?: { onSuccess?: () => void; onError?: () => void }) => {
+      addProjectMutation.mutate(data, {
+        onSuccess: options?.onSuccess,
+        onError: options?.onError,
+      });
+    },
+    deleteProject: (id: number, options?: { onSuccess?: () => void; onError?: () => void }) => {
+      deleteProjectMutation.mutate(id, {
+        onSuccess: options?.onSuccess,
+        onError: options?.onError,
+      });
+    },
   };
 }
